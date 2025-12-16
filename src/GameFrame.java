@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 public class GameFrame extends JFrame {
     private CardLayout cardLayout = new CardLayout(); // 卡片布局管理器
     private JPanel panel = new JPanel(cardLayout); // 主面板容器
+    private GamePanel gamePanel;
 
     /**
      * 构造方法，初始化游戏窗口和各个游戏面板
@@ -21,9 +22,13 @@ public class GameFrame extends JFrame {
         setLocationRelativeTo(null); // 设置窗口居中显示
         
         // 添加各个游戏面板到卡片布局中
-        panel.add(new MenuPanel(this),"MENU");
-        panel.add(new GamePanel(this),"GAME");
-        panel.add(new GameoverPanel(this),"OVER");
+        MenuPanel menuPanel = new MenuPanel(this);
+        gamePanel = new GamePanel(this);
+        GameoverPanel gameoverPanel = new GameoverPanel(this);
+
+        panel.add(menuPanel,"MENU");
+        panel.add(gamePanel,"GAME");
+        panel.add(gameoverPanel,"OVER");
 
         add(panel);
         cardLayout.show(panel,"MENU"); // 默认显示菜单面板
@@ -36,17 +41,17 @@ public class GameFrame extends JFrame {
     public void showGame() {
         cardLayout.show(panel, "GAME");
         // 切换后强制重绘和焦点
-        Component gamePanel = panel.getComponent(1);  // 假设GAME是第二个（索引1）
-        if (gamePanel instanceof GamePanel) {
+        gamePanel.startGame();
+        SwingUtilities.invokeLater(() -> {
             gamePanel.requestFocusInWindow();
-            gamePanel.repaint();
-        }
+        });
     }
     
     /**
      * 显示菜单面板的方法
      */
     public void showMenu() {
+        gamePanel.stopGame();
         cardLayout.show(panel, "MENU");
     }
     
@@ -54,6 +59,7 @@ public class GameFrame extends JFrame {
      * 显示游戏结束面板的方法
      */
     public void showOver() {
+        gamePanel.stopGame();
         cardLayout.show(panel, "OVER");
     }
 
